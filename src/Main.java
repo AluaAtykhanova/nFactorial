@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.Objects;
 
 public class Main extends JPanel{
@@ -32,6 +34,7 @@ public class Main extends JPanel{
     int bulletY=-100;
     int tankX=256;
     int tankY =256;
+    int fire=0;
 
     void move(int direction) throws Exception{
         this.direction=direction;
@@ -126,10 +129,12 @@ public class Main extends JPanel{
     }
 
     void runTheGame() throws Exception {
-        fire();
+        addKeyListener(new FieldKeyListener());
+        setFocusable(true);
         while(tankX!=0){
-            move(LEFT);
+            move(direction);
         }
+        fire();
     }
 
 
@@ -138,6 +143,8 @@ public class Main extends JPanel{
         Main main= new Main();
         main.runTheGame();
     }
+
+
     Main() throws Exception{
         JFrame frame = new JFrame( "Dandy Tanks");
         frame.setMinimumSize(new Dimension(BF_WIDTH,BF_HEIGHT+22));
@@ -146,6 +153,27 @@ public class Main extends JPanel{
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
+    }
+    class FieldKeyListener extends KeyAdapter{
+       @Override
+        public void keyPressed(KeyEvent e){
+            super.keyPressed(e);
+            int key = e.getKeyCode();
+            if(key==KeyEvent.VK_LEFT){
+                direction=LEFT;
+            }
+           if(key==KeyEvent.VK_RIGHT){
+               direction=RIGHT;
+           }
+           if(key==KeyEvent.VK_DOWN){
+               direction=DOWN;
+           }if(key==KeyEvent.VK_UP){
+               direction=UP;
+           }
+           if(key==KeyEvent.VK_W){
+               fire=1;
+           }
+        }
     }
 
     @Override
