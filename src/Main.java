@@ -1,42 +1,83 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 public class Main extends JPanel{
-    final int BF_WIDTH=576-64;
-    final int BF_HEIGHT=576-64;
+    final int BF_WIDTH=576;
+    final int BF_HEIGHT=576;
+    final int OBJECT_SIZE=64;
+
+    final int UP=1;
+    final int DOWN=2;
+    final int LEFT=3;
+    final int RIGHT=4;
+
+
+    String[][] objects = {
+            {"B", "B", "B","G", "G" , "W", "W", "G", "B"},
+            {"B", "G", "B","B", "G" , "W", "W", "G", "B"},
+            {"B", "B", "B","G", "G" , "W", "W", "G", "G"},
+            {"G", "B", "G","G", "G" , "W", "W", "W", "B"},
+            {"B", "G", "B","G", "G" , "W", "G", "W", "G"},
+            {"B", "B", "B","G", "G" , "W", "W", "W", "B"},
+            {"G", "B", "G","G", "G" , "W", "W", "G", "B"},
+            {"B", "B", "G","B", "B" , "W", "W", "G", "B"},
+            {"B", "G", "G","B", "B" , "W", "W", "G", "B"},
+};
 
     //1-Up 2-Down 3-Left 4-Right
-    int direction =2;
-    int bulletX= 320;
-    int bulletY=320;
-    int x=256, y =256;
+    int direction =1;
+    int bulletX= -100;
+    int bulletY=-100;
+    int tankX=256;
+    int tankY =256;
 
     void move(int direction) throws Exception{
         this.direction=direction;
 
 
         if(direction==1){
-                y--;
+            tankY--;
         }
         if (direction == 2){
-            y++;
+            tankY++;
         }
         if(direction == 3){
-            x--;
+            tankX--;
         }
         if(direction == 4){
-            x++;
+            tankX++;
         }
         Thread.sleep(33);
         repaint();
 
     }
 
-    void runTheGame() throws Exception {
-        while(y!=0){
-            move(direction=1);
+    void fire() throws Exception {
+        bulletX=tankX+25;
+        bulletY=tankY+25;
+        while(bulletX>0 && bulletX<BF_WIDTH && bulletY>0 && bulletY<BF_HEIGHT){
+            if(direction==1){
+                bulletY--;
+            } else if(direction==2){
+                bulletY++;
+            } else if(direction==3){
+                bulletX--;
+            } else{
+                bulletX++;
+            }
+            Thread.sleep(20);
+            repaint();
         }
+        bulletX= -100;
+        bulletY=-100;
+    }
 
+    void runTheGame() throws Exception {
+        fire();
+        while(tankX!=0){
+            move(LEFT);
+        }
     }
 
 
@@ -46,7 +87,7 @@ public class Main extends JPanel{
         main.runTheGame();
     }
     Main() throws Exception{
-        JFrame frame = new JFrame( "Dendy Tanks");
+        JFrame frame = new JFrame( "Dandy Tanks");
         frame.setMinimumSize(new Dimension(BF_WIDTH,BF_HEIGHT+22));
         frame.getContentPane().add(this);
         frame.setLocation(0,0);
@@ -58,21 +99,37 @@ public class Main extends JPanel{
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.setColor(Color.red);
-        g.fillRect(x,y,64,64);
 
+        //Environment
+        for(int i=0;i<9;i++){
+            for(int j=0;j<9;j++){
+                if(objects[i][j].equals("B")){
+                g.setColor(new Color(238, 133, 41));
+                }else if(objects[i][j].equals("G")){
+                g.setColor(new Color(35, 129, 58));
+                }else{
+                g.setColor(new Color(41, 169, 238));
+            }
+            g.fillRect(j*OBJECT_SIZE,i*OBJECT_SIZE,OBJECT_SIZE,OBJECT_SIZE);
+        }
+        }
+
+        //draw Tank
+        g.setColor(Color.red);
+        g.fillRect(tankX,tankY,OBJECT_SIZE,OBJECT_SIZE);
         g.setColor(Color.green);
         if(direction==1){
-            g.fillRect(x+20,y,24,34);
+            g.fillRect(tankX+20,tankY,24,34);
         } else if(direction ==2){
-            g.fillRect(x+20,y+30,24,34);
+            g.fillRect(tankX+20,tankY+30,24,34);
         }else if (direction ==3){
-            g.fillRect(x,y+20,34,24);
+            g.fillRect(tankX,tankY+20,34,24);
         }else{
-            g.fillRect(x+30,y+20,34,24);
+            g.fillRect(tankX+30,tankY+20,34,24);
         }
         g.setColor(Color.ORANGE);
         g.fillRect(bulletX,bulletY, 14,14);
+
 
     }
 
