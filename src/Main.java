@@ -5,13 +5,14 @@ import java.util.Objects;
 public class Main extends JPanel{
     final int BF_WIDTH=576;
     final int BF_HEIGHT=576;
-    final int OBJECT_SIZE=64;
+    final int QADRANT_SIZE=64;
 
     final int UP=1;
     final int DOWN=2;
     final int LEFT=3;
     final int RIGHT=4;
-
+    final int TOP_Y= BF_HEIGHT-QADRANT_SIZE;
+    final int TOP_X= BF_WIDTH-QADRANT_SIZE;
 
     String[][] objects = {
             {"B", "B", "B","G", "G" , "W", "W", "G", "B"},
@@ -26,7 +27,7 @@ public class Main extends JPanel{
 };
 
     //1-Up 2-Down 3-Left 4-Right
-    int direction =1;
+    int direction =3;
     int bulletX= -100;
     int bulletY=-100;
     int tankX=256;
@@ -35,22 +36,63 @@ public class Main extends JPanel{
     void move(int direction) throws Exception{
         this.direction=direction;
 
+        if(dontCanMove()){
+            System.out.println("Can't move!!!!");
+            fire();
+            return;
+        }
+        for(int i=0; i<64;i++) {
+            if (direction == 1) {
+                tankY--;
+            }
+            if (direction == 2) {
+                tankY++;
+            }
+            if (direction == 3) {
+                tankX--;
+            }
+            if (direction == 4) {
+                tankX++;
+            }
+            Thread.sleep(33);
+            repaint();
+        }
+    }
 
-        if(direction==1){
-            tankY--;
-        }
-        if (direction == 2){
-            tankY++;
-        }
-        if(direction == 3){
-            tankX--;
-        }
-        if(direction == 4){
-            tankX++;
-        }
-        Thread.sleep(33);
-        repaint();
+    boolean dontCanMove(){
 
+        return (direction == UP && tankY==0) || (direction ==DOWN && tankY == TOP_Y)
+                || (direction==LEFT && tankX==0) ||(direction==RIGHT && tankX==TOP_X)
+                || nextObject(direction).equals("B");
+    }
+    String nextObject(int direction){
+        int y=tankY;
+        int x=tankX;
+        switch (direction){
+            case UP:
+                y-=QADRANT_SIZE;
+                break;
+            case DOWN:
+                y+=QADRANT_SIZE;
+                break;
+            case LEFT:
+                x-=QADRANT_SIZE;
+                break;
+            case RIGHT:
+                x+=QADRANT_SIZE;
+                break;
+        }
+        return objects[y/QADRANT_SIZE][x/QADRANT_SIZE];
+    }
+
+    boolean processInterception(){
+        int x=bulletX/64;
+        int y=bulletY/64;
+        if(objects[y][x].equals("B")){
+           objects[y][x] = "G";
+           return true;
+        }
+        return false;
     }
 
     void fire() throws Exception {
@@ -66,11 +108,21 @@ public class Main extends JPanel{
             } else{
                 bulletX++;
             }
+
+            if (processInterception()) {
+                destroyBullet();
+                repaint();
+            }
             Thread.sleep(20);
             repaint();
         }
-        bulletX= -100;
-        bulletY=-100;
+        destroyBullet();
+        repaint();
+    }
+    void destroyBullet(){
+        bulletY=0;
+        bulletX=0;
+
     }
 
     void runTheGame() throws Exception {
@@ -110,13 +162,13 @@ public class Main extends JPanel{
                 }else{
                 g.setColor(new Color(41, 169, 238));
             }
-            g.fillRect(j*OBJECT_SIZE,i*OBJECT_SIZE,OBJECT_SIZE,OBJECT_SIZE);
+            g.fillRect(j*QADRANT_SIZE,i*QADRANT_SIZE,QADRANT_SIZE,QADRANT_SIZE);
         }
         }
 
         //draw Tank
         g.setColor(Color.red);
-        g.fillRect(tankX,tankY,OBJECT_SIZE,OBJECT_SIZE);
+        g.fillRect(tankX,tankY,QADRANT_SIZE,QADRANT_SIZE);
         g.setColor(Color.green);
         if(direction==1){
             g.fillRect(tankX+20,tankY,24,34);
